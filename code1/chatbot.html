@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Classroom Chatbot Assistant</title>
+    <link rel="stylesheet" href="styles.css" />
+
+    <style>
+      #content {
+        display: none;
+      }
+      #loading {
+        text-align: center;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading">
+      <p>Loading...</p>
+    </div>
+    <div id="content" class="container">
+      <h1>Welcome to the Classroom Chatbot Assistant</h1>
+      <p>Get help with your classroom queries using our intelligent chatbot.</p>
+
+      <iframe
+        src="http://localhost:8502"
+        title="Classroom Chatbot Assistant"
+        width="100%"
+        height="600px"
+        frameborder="0"
+      ></iframe>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!sessionStorage.getItem("sessionChecked")) {
+          fetch("/api/checkSession")
+            .then((response) => response.json())
+            .then((data) => {
+              if (!data.authenticated) {
+                window.location.href = "/login.html";
+              } else {
+                sessionStorage.setItem("sessionChecked", "true");
+
+                document.getElementById("content").style.display = "block";
+                document.getElementById("loading").style.display = "none";
+              }
+            })
+            .catch(() => {
+              window.location.href = "/login.html";
+            });
+        } else {
+          document.getElementById("content").style.display = "block";
+          document.getElementById("loading").style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>

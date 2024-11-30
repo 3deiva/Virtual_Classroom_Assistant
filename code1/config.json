@@ -1,0 +1,66 @@
+from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
+
+# Your Hugging Face token
+hf_token = "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"
+
+# Initialize the tokenizer and model
+model_name = "dbmdz/bert-large-cased-finetuned-conll03-english"  # Replace if you have another specific model
+tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=hf_token)
+model = AutoModelForTokenClassification.from_pretrained(model_name, use_auth_token=hf_token)
+
+# Create the pipeline
+nlp_pipeline = pipeline('ner', model=model, tokenizer=tokenizer)
+
+def extract_information(text):
+    results = nlp_pipeline(text)
+    
+    extracted_info = {
+        'Customer Requirements': {
+            'Car Type': None,
+            'Fuel Type': None,
+            'Color': None,
+            'Distance Travelled': None,
+            'Make Year': None,
+            'Transmission Type': None
+        },
+        'Company Policies Discussed': {
+            'Free RC Transfer': None,
+            '5-Day Money Back Guarantee': None,
+            'Free RSA for One Year': None,
+            'Return Policy': None
+        },
+        'Customer Objections': {
+            'Refurbishment Quality': None,
+            'Car Issues': None,
+            'Price Issues': None,
+            'Customer Experience Issues': None
+        }
+    }
+    
+    for entity in results:
+        # Example matching for requirements, policies, and objections
+        if entity['entity'] == 'B-CustomerRequirement':
+            # Add extraction logic here
+            pass
+        elif entity['entity'] == 'B-CompanyPolicy':
+            # Add extraction logic here
+            pass
+        elif entity['entity'] == 'B-CustomerObjection':
+            # Add extraction logic here
+            pass
+
+    return extracted_info
+
+# Sample text
+text = """
+The customer is interested in a Sedan with a Petrol fuel type, Blue color, and has traveled 20,000 miles. 
+The car is a 2020 model with Automatic transmission. We discussed our company policies which include Free RC Transfer, 
+5-Day Money Back Guarantee, Free RSA for One Year, and our Return Policy. The customer expressed concerns about 
+Refurbishment Quality, Car Issues, Price Issues, and Customer Experience Issues such as long wait time and salesperson behaviour.
+"""
+
+# Extract information
+info = extract_information(text)
+
+# Print results
+print(info)

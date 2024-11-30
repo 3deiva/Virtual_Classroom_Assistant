@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Group</title>
+    <link rel="stylesheet" href="style1.css" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #f0f0f0;
+        overflow: hidden; /* Prevent scrollbars during session check */
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(
+          255,
+          255,
+          255,
+          0.9
+        ); /* White background with opacity */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* Ensure it covers all other content */
+        font-size: 20px;
+        color: #333;
+      }
+
+      #content {
+        display: none; /* Hide content initially */
+      }
+
+      /* Add your existing CSS here */
+    </style>
+  </head>
+  <body>
+    <!-- Overlay for session check -->
+    <div class="overlay" id="overlay">Checking session...</div>
+
+    <!-- Content -->
+    <div id="content">
+      <h1>Create a New Group</h1>
+      <form id="create-group-form">
+        <div>
+          <label for="group-name">Group Name:</label>
+          <input type="text" id="group-name" name="groupName" required />
+        </div>
+        <div>
+          <label for="course">Course:</label>
+          <input type="text" id="course" name="course" required />
+        </div>
+        <div>
+          <label for="group-no">Group Number:</label>
+          <input type="text" id="group-no" name="groupNo" required />
+        </div>
+        <div>
+          <label for="staff-name">Staff Name:</label>
+          <input type="text" id="staff-name" name="staffName" required />
+        </div>
+        <div>
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Create Group</button>
+      </form>
+
+      <button id="view-groups-button">View All Groups</button>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Check if the session status is already checked and stored
+        if (!sessionStorage.getItem("sessionChecked")) {
+          fetch("/api/checkSession")
+            .then((response) => response.json())
+            .then((data) => {
+              if (!data.authenticated) {
+                window.location.href = "/login.html";
+              } else {
+                // Store flag to indicate session is checked
+                sessionStorage.setItem("sessionChecked", "true");
+                // Hide overlay and display content
+                document.getElementById("overlay").style.display = "none";
+                document.getElementById("content").style.display = "block";
+              }
+            });
+        } else {
+          // If session is already checked, hide overlay and display content
+          document.getElementById("overlay").style.display = "none";
+          document.getElementById("content").style.display = "block";
+        }
+      });
+
+      document
+        .getElementById("create-group-form")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const groupName = document.getElementById("group-name").value;
+          const course = document.getElementById("course").value;
+          const groupNo = document.getElementById("group-no").value;
+          const staffName = document.getElementById("staff-name").value;
+          const password = document.getElementById("password").value;
+
+          try {
+            const response = await fetch("/api/groups/createGroup", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                groupName,
+                course,
+                groupNo,
+                staffName,
+                password,
+              }),
+            });
+
+            if (response.ok) {
+              alert("Group created successfully!");
+              document.getElementById("create-group-form").reset();
+            } else {
+              alert("Error creating group.");
+            }
+          } catch (error) {
+            console.error("Error creating group:", error);
+            alert("Error creating group.");
+          }
+        });
+
+      document
+        .getElementById("view-groups-button")
+        .addEventListener("click", () => {
+          window.location.href = "allgroups.html";
+        });
+    </script>
+  </body>
+</html>

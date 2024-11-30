@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="t.css" />
+  </head>
+
+  <body>
+    <div class="content">
+      <header class="top-bar">
+        <div class="user-info">
+          <span id="welcomeMessage">Welcome, Student</span>
+          <img
+            src="images/menu-burger.png"
+            alt="Icon"
+            class="top-bar-icon"
+            id="menuBurger"
+          />
+
+          <div id="dropdownMenu" class="dropdown-menu">
+            <ul>
+              <li onclick="logout()">Logout</li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="overview">
+          <h1>Welcome to the Student Dashboard</h1>
+          <p>
+            This dashboard provides a centralized view of your academic journey.
+            Here you can manage your profile, attendance were taken via faces,
+            participate in group discussions, check and submit your assignments,
+            and monitor the status of your submissions.
+          </p>
+          <div class="card-container">
+            <div class="card" onclick="navigateTo('profile')">
+              <div class="card-content">
+                <div class="card-text">
+                  <h2>Profile</h2>
+                  <p>
+                    Update your personal information and view your academic
+                    details.
+                  </p>
+                </div>
+                <div class="card-image">
+                  <img src="images/b.webp" alt="Profile" />
+                </div>
+              </div>
+            </div>
+
+            <div class="card reverse" onclick="navigateTo('chatbot')">
+              <div class="card-content">
+                <div class="card-text">
+                  <h2>Chatbot</h2>
+                  <p>
+                    Interact with our AI-powered chatbot for assistance with
+                    your coursework and assignments.
+                  </p>
+                </div>
+                <div class="card-image">
+                  <img src="images/c.webp" alt="Chatbot" />
+                </div>
+              </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('attendance')">
+              <div class="card-content">
+                <div class="card-text">
+                  <h2>Attendance</h2>
+                  <p>
+                    Here face tracking attendance tracking system is used to
+                    take the attendance.
+                  </p>
+                </div>
+                <div class="card-image">
+                  <img src="images/e.webp" alt="Attendance" />
+                </div>
+              </div>
+            </div>
+
+            <div class="card reverse" onclick="navigateTo('groups')">
+              <div class="card-content">
+                <div class="card-text">
+                  <h2>Groups</h2>
+                  <p>
+                    Join and interact with your study groups to collaborate on
+                    projects and assignments.
+                  </p>
+                </div>
+                <div class="card-image">
+                  <img src="images/f.jpg" alt="Groups" />
+                </div>
+              </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('assignments')">
+              <div class="card-content">
+                <div class="card-text">
+                  <h2>Assignments</h2>
+                  <p>
+                    View and submit your assignments. Keep track of deadlines
+                    and requirements.
+                  </p>
+                </div>
+                <div class="card-image">
+                  <img src="images/g.jpg" alt="Assignments" />
+                </div>
+              </div>
+            </div>
+
+            <div class="card reverse" onclick="navigateTo('assignmentStatus')">
+              <div class="card-content">
+                <div class="card-text">
+                  <h2>Assignment Status</h2>
+                  <p>
+                    Check the status of your submitted assignments and ensure
+                    all are graded.
+                  </p>
+                </div>
+                <div class="card-image">
+                  <img src="images/h.jpg" alt="Assignment Status" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      function navigateTo(page) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const phoneNo = urlParams.get("phoneNo");
+
+        let targetUrl;
+        switch (page) {
+          case "profile":
+            targetUrl = `/sprofile.html?phoneNo=${phoneNo}`;
+            break;
+          case "chatbot":
+            targetUrl = `/chatbot.html`;
+            break;
+          case "attendance":
+            targetUrl = `/sallclassrooms.html`;
+            break;
+          case "groups":
+            targetUrl = `/sgroups.html`;
+            break;
+          case "assignments":
+            targetUrl = `/sallassignments.html`;
+            break;
+          case "assignmentStatus":
+            targetUrl = `/assignmentsstatus.html?phoneNo=${phoneNo}`;
+            break;
+        }
+
+        if (targetUrl) {
+          window.location.href = targetUrl;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!sessionStorage.getItem("sessionChecked")) {
+          fetch("/api/checkSession")
+            .then((response) => response.json())
+            .then((data) => {
+              if (!data.authenticated) {
+                window.location.href = "/login.html";
+              } else {
+                sessionStorage.setItem("sessionChecked", "true");
+              }
+            });
+        }
+      });
+
+      const menuBurger = document.getElementById("menuBurger");
+      const dropdownMenu = document.getElementById("dropdownMenu");
+
+      menuBurger.addEventListener("click", (event) => {
+        event.stopPropagation();
+        dropdownMenu.classList.toggle("show");
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!dropdownMenu.contains(event.target)) {
+          dropdownMenu.classList.remove("show");
+        }
+      });
+
+      function logout() {
+        console.log("Logged out");
+        window.location.href = "/login.html";
+      }
+    </script>
+  </body>
+</html>

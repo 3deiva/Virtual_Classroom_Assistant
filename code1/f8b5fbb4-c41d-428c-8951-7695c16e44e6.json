@@ -1,0 +1,19 @@
+{
+    "Unique Key": "f8b5fbb4-c41d-428c-8951-7695c16e44e6",
+    "Data": {
+        "Customer Requirements": {
+            "Car Type": null,
+            "Fuel Type": null,
+            "Color": null,
+            "Distance Travelled": null,
+            "Make Year": null,
+            "Transmission Type": null
+        },
+        "Customer Objections": {
+            "Refurbishment Quality": null,
+            "Car Issues": null,
+            "Price Issues": null,
+            "Customer Experience Issues": null
+        }
+    }
+}
