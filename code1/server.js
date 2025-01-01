@@ -1,3 +1,6 @@
+// Load environment variables from .env file (for local development)
+require('dotenv').config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -11,12 +14,13 @@ const { isAuthenticated } = require("./middlewares");
 const app = express();
 const port = process.env.PORT || 5000;
 
-const MONGO_URI =
-  "mongodb+srv://deivaraja1905:G5JWYaV0Z0VRtPbz@cluster0.jipqz.mongodb.net/vir?retryWrites=true&w=majority";
-const SESSION_SECRET = "yourSecret";
+// Retrieve sensitive data from environment variables
+const MONGO_URI = process.env.MONGO_URI;
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
-console.log("MONGO_URI:", MONGO_URI);
+console.log("MONGO_URI:", MONGO_URI);  // Optionally log this for debugging, remove in production
 
+// Connect to MongoDB using the environment variable
 mongoose
   .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -29,6 +33,7 @@ mongoose
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+// Configure session with environment variable for session secret
 app.use(
   session({
     secret: SESSION_SECRET,
@@ -38,8 +43,10 @@ app.use(
   })
 );
 
+// Serve static files (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname)));
 
+// API to check user session
 app.get("/api/checkSession", (req, res) => {
   if (req.session.user) {
     res.json({ authenticated: true });
@@ -48,6 +55,7 @@ app.get("/api/checkSession", (req, res) => {
   }
 });
 
+// Routes for serving HTML pages
 app.get("/studentDashboard.html", isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "studentDashboard.html"));
 });
@@ -76,16 +84,19 @@ app.get("/groups.html", isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "groups.html"));
 });
 
+// API routes for handling authentication, groups, students, and assignments
 app.use("/api/auth", authRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api", assignmentRoutes);
 
+// Error handler for catching server-side errors
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something went wrong!");
 });
 
+// Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
