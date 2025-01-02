@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Classroom Chatbot Assistant</title>
     <link rel="stylesheet" href="styles.css" />
-
     <style>
       #content {
         display: none;
@@ -24,6 +23,7 @@
       <h1>Welcome to the Classroom Chatbot Assistant</h1>
       <p>Get help with your classroom queries using our intelligent chatbot.</p>
 
+      <!-- Change iframe src to proxy route -->
       <iframe
         src="http://localhost:8502"
         title="Classroom Chatbot Assistant"
@@ -43,7 +43,6 @@
                 window.location.href = "/login.html";
               } else {
                 sessionStorage.setItem("sessionChecked", "true");
-
                 document.getElementById("content").style.display = "block";
                 document.getElementById("loading").style.display = "none";
               }
