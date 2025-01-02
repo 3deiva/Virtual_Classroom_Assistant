@@ -1,8 +1,8 @@
-
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
+const { spawn } = require("child_process");
 const authRoutes = require("./auth");
 const groupRoutes = require("./groupRoutes");
 const studentRoutes = require("./studentRoutes");
@@ -12,26 +12,51 @@ const { isAuthenticated } = require("./middlewares");
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Retrieve sensitive data from environment variables
-const MONGO_URI = process.env.MONGO_URI;
-const SESSION_SECRET = process.env.SESSION_SECRET;
+// MongoDB URI
+const MONGO_URI =
+  "mongodb+srv://deivaraja1905:G5JWYaV0Z0VRtPbz@cluster0.jipqz.mongodb.net/vir?retryWrites=true&w=majority";
+const SESSION_SECRET = "yourSecret";
 
-console.log("MONGO_URI:", MONGO_URI);  // Optionally log this for debugging, remove in production
+// Start Streamlit in the background without opening in the browser
+function startStreamlit(scriptPath, port) {
+  const streamlit = spawn("streamlit", [
+    "run",
+    scriptPath, // Path to your Streamlit script (app1.py or add_faces.py)
+    "--server.port",
+    port.toString(), // Port for the Streamlit app
+    "--server.address",
+    "0.0.0.0", // Allow external connections
+    "--browser.serverAddress",
+    "localhost",
+    "--server.enableCORS",
+    "true",
+    "--browser.gatherUsageStats",
+    "false", // Prevent Streamlit from opening automatically in the browser
+    "--server.headless=true", // Headless mode: Prevent Streamlit from launching the browser window
+  ]);
 
-// Connect to MongoDB using the environment variable
-mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log("Connected to MongoDB Atlas");
-    console.log("Host:", mongoose.connection.host);
-    console.log("Database:", mongoose.connection.name);
-  })
-  .catch((error) => console.error("Error connecting to MongoDB:", error));
+  streamlit.stdout.on("data", (data) => {
+    console.log(`Streamlit: ${data}`);
+  });
 
+  streamlit.stderr.on("data", (data) => {
+    console.error(`Streamlit Error: ${data}`);
+  });
+
+  streamlit.on("close", (code) => {
+    console.log(`Streamlit process exited with code ${code}`);
+  });
+
+  process.on("SIGINT", () => {
+    streamlit.kill();
+    process.exit();
+  });
+}
+
+// Middleware Configuration
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-// Configure session with environment variable for session secret
 app.use(
   session({
     secret: SESSION_SECRET,
@@ -41,10 +66,15 @@ app.use(
   })
 );
 
-// Serve static files (HTML, CSS, JS)
+// Serve static files (including chatbot.html)
 app.use(express.static(path.join(__dirname)));
 
-// API to check user session
+// Health check route
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK" });
+});
+
+// Session check route
 app.get("/api/checkSession", (req, res) => {
   if (req.session.user) {
     res.json({ authenticated: true });
@@ -53,7 +83,7 @@ app.get("/api/checkSession", (req, res) => {
   }
 });
 
-// Routes for serving HTML pages
+// Protected Routes
 app.get("/studentDashboard.html", isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "studentDashboard.html"));
 });
@@ -82,19 +112,40 @@ app.get("/groups.html", isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "groups.html"));
 });
 
-// API routes for handling authentication, groups, students, and assignments
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api", assignmentRoutes);
 
-// Error handler for catching server-side errors
+// MongoDB connection
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log("Connected to MongoDB Atlas");
+  })
+  .catch((error) => {
+    console.error("Error connecting to MongoDB:", error);
+  });
+
+// Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something went wrong!");
+  console.error("Error:", err.stack);
+  res.status(500).json({ error: "Internal Server Error" });
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// Start Express server
+const server = app.listen(port, () => {
+  console.log(`Express server running on port ${port}`);
+  startStreamlit("app1.py", 8502); // Start app1.py Streamlit app on port 8502
+  startStreamlit("add_faces.py", 8501); // Start add_faces.py Streamlit app on port 8503
+});
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received. Shutting down gracefully...");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
 });
