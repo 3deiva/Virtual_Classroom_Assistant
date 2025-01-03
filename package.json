@@ -4,7 +4,7 @@
   "description": "Backend for virtual classroom application",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node code1/server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
