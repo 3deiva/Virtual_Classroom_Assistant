@@ -66,7 +66,7 @@ app.use(
   })
 );
 
-// Serve static files (including chatbot.html)
+// Serve static files (including HTML files such as chatbot.html)
 app.use(express.static(path.join(__dirname)));
 
 // Health check route
@@ -138,7 +138,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(port, () => {
   console.log(`Express server running on port ${port}`);
   startStreamlit("app1.py", 8502); // Start app1.py Streamlit app on port 8502
-  startStreamlit("add_faces.py", 8501); // Start add_faces.py Streamlit app on port 8503
+  startStreamlit("add_faces.py", 8501); // Start add_faces.py Streamlit app on port 8501
 });
 
 // Graceful shutdown
