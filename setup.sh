@@ -3,11 +3,11 @@
 # Update pip to the latest version
 pip install --upgrade pip
 
-# Install build-essential to ensure gcc and other tools are present
-apt-get update && apt-get install -y build-essential
+# Install build-essential and Python development headers
+apt-get update && apt-get install -y build-essential python3-dev
 
-# Install numpy with the --prefer-binary flag to avoid building from source
+# Force numpy to use precompiled binary wheels
 pip install numpy --prefer-binary
 
-# Install other dependencies from requirements.txt
+# Install dependencies from requirements.txt
 pip install -r requirements.txt
