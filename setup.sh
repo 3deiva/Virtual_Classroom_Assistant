@@ -1,9 +1,17 @@
 #!/bin/bash
 
 
-pip install --upgrade pip setuptools wheel
+pip install --upgrade pip
 
 
-PIP_NO_BUILD_ISOLATION=0 pip install numpy==1.24.3 --prefer-binary
-PIP_NO_BUILD_ISOLATION=0 pip install opencv-python-headless==4.5.3.56 --prefer-binary
+apt-get update && apt-get install -y build-essential python3-dev libatlas-base-dev gfortran
+
+
+pip install numpy --only-binary=:all:
+
 pip install -r requirements.txt
+
+
+pip install opencv-python-headless==4.5.3.56 --no-binary opencv-python-headless
+
+echo "Setup completed successfully!"
