@@ -1,15 +1,13 @@
 #!/bin/bash
-apt-get update
-apt-get install -y \
-    build-essential \
-    python3-dev \
-    libatlas-base-dev \
-    gfortran \
-    cmake \
-    pkg-config \
-    libopenblas-dev
 
-pip install --upgrade pip
-pip install numpy==1.24.3 --no-binary numpy
-pip install opencv-python-headless==4.5.3.56 --no-binary opencv-python-headless
-pip install -r requirements.txt
+
+export PIP_NO_BUILD_ISOLATION=0
+python3 -m pip install --user --prefer-binary numpy==1.24.3
+python3 -m pip install --user --prefer-binary opencv-python-headless==4.5.3.56
+python3 -m pip install --user -r requirements.txt
+
+
+command -v apt-get >/dev/null && {
+  sudo apt-get update
+  sudo apt-get install -y python3-numpy python3-opencv
+}
